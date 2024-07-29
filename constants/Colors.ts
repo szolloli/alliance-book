@@ -6,4 +6,6 @@ export const Colors = {
   skyGradient2: '#b95172',
   planet1: '#f6f6d0',
   planet2: '#ff6455',
+  detailsCardGradient1: '#32373e',
+  detailsCardGradient2: '#15181c',
 };
