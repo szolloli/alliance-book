@@ -1,4 +1,18 @@
-export type Character = {
+export interface PagedResults<T> {
+  count: number;
+  next?: string;
+  previous: string;
+  results: T[];
+}
+
+export interface Resource {
+  url: string;
+  id: string;
+  created: string;
+  edited: string;
+}
+
+export interface Character extends Resource {
   name: string;
   height: number;
   mass: number;
@@ -13,4 +27,4 @@ export type Character = {
   vehicles: string[];
   starships: string[];
   url: string;
-};
+}
