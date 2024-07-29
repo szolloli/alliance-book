@@ -1,38 +1,44 @@
+import { Colors } from '@/constants/Colors';
+import useSwapiCharacter from '@/hooks/swapi/useSwapiCharacter';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useLocalSearchParams } from 'expo-router';
 import React from 'react';
-import { Text, StyleSheet, View } from 'react-native';
+import { Text, StyleSheet, View, ActivityIndicator } from 'react-native';
 import Animated, { FadeIn, FadeInDown, FadeInRight, FadeOutLeft } from 'react-native-reanimated';
 
-// TODO: Replace with actual data
-const character = {
-  name: 'Luke Skywalker',
-  height: 172,
-  mass: 77,
-  hair_color: 'blond',
-  skin_color: 'fair',
-  eye_color: 'blue',
-  birth_year: '19BBY',
-  gender: 'male',
-};
-
 const CharacterDetailScreen = () => {
-  const { id } = useLocalSearchParams();
+  const { id } = useLocalSearchParams<{ id: string }>();
+  const { data, isLoading } = useSwapiCharacter(id!);
+
+  if (isLoading) {
+    return (
+      <View style={[styles.container, styles.center]}>
+        <ActivityIndicator />
+      </View>
+    );
+  }
+
+  if (!data) {
+    return (
+      <View style={[styles.container, styles.center]}>
+        <Text>No data</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
       <View style={styles.background}>
         <Animated.Image
           source={{
-            // TODO: Replace with .env base url value
-            uri: `https://starwars-visualguide.com/assets/img/characters/${id}.jpg`,
+            uri: `${process.env.EXPO_PUBLIC_CHARACTER_IMAGE_URL}/${id}.jpg`,
           }}
           entering={FadeIn.duration(1000)}
           style={styles.image}
           resizeMode="cover"
         />
         <LinearGradient
-          colors={['transparent', '#1f2226']}
+          colors={['transparent', Colors.background]}
           locations={[0.3, 1]}
           style={styles.gradientOverlay}
         />
@@ -43,14 +49,14 @@ const CharacterDetailScreen = () => {
           entering={FadeInRight.duration(1000)}
           exiting={FadeOutLeft}
           style={styles.name}>
-          {character.name}
+          {data?.name}
         </Animated.Text>
         <View style={styles.horizontalDivider} />
       </View>
       {/* Details card */}
       <View style={styles.detailsContainer}>
         <LinearGradient
-          colors={['#32373e', '#15181c']}
+          colors={[Colors.detailsCardGradient1, Colors.detailsCardGradient2]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={styles.detailsContainerGradient}>
@@ -59,34 +65,35 @@ const CharacterDetailScreen = () => {
             <View style={styles.detailRow}>
               <Animated.View entering={FadeInDown.duration(1000)} style={styles.detail}>
                 <Text style={[styles.label, styles.text]}>Height:</Text>
-                <Text style={styles.text}> {character.height} cm</Text>
+                <Text style={styles.text}> {data.height} cm</Text>
               </Animated.View>
               <Animated.View entering={FadeInDown.duration(1000).delay(100)} style={styles.detail}>
                 <Text style={[styles.label, styles.text]}>Mass:</Text>
-                <Text style={styles.text}> {character.mass} kg</Text>
+                <Text style={styles.text}> {data.mass} kg</Text>
               </Animated.View>
               <Animated.View entering={FadeInDown.duration(1000).delay(200)} style={styles.detail}>
-                <Text style={[styles.label, styles.text]}>Hair Color:</Text>
-                <Text style={styles.text}> {character.hair_color}</Text>
+                <Text style={[styles.label, styles.text]}>Hair:</Text>
+                <Text style={styles.text}> {data.hair_color}</Text>
               </Animated.View>
               <Animated.View entering={FadeInDown.duration(1000).delay(300)} style={styles.detail}>
-                <Text style={[styles.label, styles.text]}>Skin Color:</Text>
-                <Text style={styles.text}> {character.skin_color}</Text>
+                <Text style={[styles.label, styles.text]}>Skin:</Text>
+                <Text style={styles.text}> {data.skin_color}</Text>
               </Animated.View>
             </View>
+            <View style={styles.verticalDivider} />
             {/* Right column */}
             <View style={styles.detailRow}>
               <Animated.View entering={FadeInDown.duration(1000).delay(400)} style={styles.detail}>
-                <Text style={[styles.label, styles.text]}>Eye Color:</Text>
-                <Text style={styles.text}> {character.eye_color}</Text>
+                <Text style={[styles.label, styles.text]}>Eyes:</Text>
+                <Text style={styles.text}> {data.eye_color}</Text>
               </Animated.View>
               <Animated.View entering={FadeInDown.duration(1000).delay(500)} style={styles.detail}>
-                <Text style={[styles.label, styles.text]}>Birth Year:</Text>
-                <Text style={styles.text}> {character.birth_year}</Text>
+                <Text style={[styles.label, styles.text]}>Born:</Text>
+                <Text style={styles.text}> {data.birth_year}</Text>
               </Animated.View>
               <Animated.View entering={FadeInDown.duration(1000).delay(600)} style={styles.detail}>
                 <Text style={[styles.label, styles.text]}>Gender:</Text>
-                <Text style={styles.text}> {character.gender}</Text>
+                <Text style={styles.text}> {data.gender}</Text>
               </Animated.View>
             </View>
           </View>
@@ -99,9 +106,11 @@ const CharacterDetailScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
-    backgroundColor: '#1f2226',
-    justifyContent: 'flex-start',
+    backgroundColor: Colors.background,
     alignItems: 'center',
+  },
+  center: {
+    justifyContent: 'center',
   },
   background: {
     position: 'absolute',
@@ -120,11 +129,11 @@ const styles = StyleSheet.create({
   horizontalDivider: {
     width: '100%',
     height: 1,
-    backgroundColor: 'gray',
+    backgroundColor: Colors.subtext,
   },
   detailsContainer: {
     margin: 32,
-    shadowColor: 'black',
+    shadowColor: Colors.background,
     shadowOffset: { width: 4, height: 16 },
     shadowOpacity: 0.5,
     shadowRadius: 24,
@@ -134,13 +143,19 @@ const styles = StyleSheet.create({
     borderRadius: 16,
   },
   detailRow: {
+    flex: 1,
     flexDirection: 'column',
     gap: 8,
   },
+  verticalDivider: {
+    width: 1,
+    height: '100%',
+    backgroundColor: Colors.subtext,
+  },
   details: {
-    color: 'red',
     flexDirection: 'row',
     justifyContent: 'space-between',
+    gap: 16,
     alignItems: 'flex-start',
     width: '100%',
   },
@@ -154,17 +169,17 @@ const styles = StyleSheet.create({
     fontSize: 32,
     fontWeight: 'bold',
     marginBottom: 10,
-    color: '#fff',
+    color: Colors.text,
   },
   detail: {
     fontSize: 16,
     marginBottom: 5,
-    color: '#fff',
+    color: Colors.text,
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
   text: {
-    color: 'white',
+    color: Colors.text,
     fontSize: 16,
   },
   label: {
