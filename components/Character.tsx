@@ -1,35 +1,28 @@
-import { View, StyleSheet, Image } from 'react-native';
+import { View, StyleSheet, Image, Text } from 'react-native';
 import React from 'react';
-import { ThemedText } from './ThemedText';
+import { Colors } from '@/constants/Colors';
 
 type CharacterProps = {
-  id: number;
+  id: string;
   name: string;
-  height: number;
-  weight: number;
+  height: string;
+  weight: string;
 };
 
 export default function Character({ id, name, height, weight }: CharacterProps) {
   return (
     <View style={styles.container}>
       <Image
-        // TODO: Replace with .env base url value
-        src={`https://starwars-visualguide.com/assets/img/characters/${id}.jpg`}
+        src={`${process.env.EXPO_PUBLIC_CHARACTER_IMAGE_URL}/${id}.jpg`}
         style={styles.image}
       />
-      <View
-        style={{
-          marginHorizontal: 10,
-          flexDirection: 'row',
-          flex: 1,
-          alignItems: 'center',
-          justifyContent: 'space-between',
-        }}>
+      <View style={styles.textInfoContainer}>
         <View style={{ flexDirection: 'column' }}>
-          <ThemedText type="defaultSemiBold">{name}</ThemedText>
-          <ThemedText style={styles.description}>
-            Height: {height} cm | Weight: {weight} lbs
-          </ThemedText>
+          <Text style={styles.name}>{name}</Text>
+          <Text style={styles.description}>
+            Height: {height !== 'unknown' ? `${height} cm` : 'N/A'} | Weight:{' '}
+            {weight !== 'unknown' ? `${weight} lbs` : 'N/A'}
+          </Text>
         </View>
       </View>
     </View>
@@ -43,7 +36,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: 'white',
+    backgroundColor: Colors.background,
+  },
+  textInfoContainer: {
+    marginLeft: 16,
+    flexDirection: 'row',
+    flex: 1,
+    alignItems: 'center',
+    alignSelf: 'flex-start',
+    justifyContent: 'space-between',
   },
   image: {
     width: 64,
@@ -53,8 +54,10 @@ const styles = StyleSheet.create({
   },
   name: {
     flexDirection: 'column',
+    color: Colors.text,
+    fontSize: 20,
   },
   description: {
-    color: 'gray',
+    color: Colors.subtext,
   },
 });
