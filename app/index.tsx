@@ -98,7 +98,13 @@ export default function HomeScreen() {
     });
   }, [darknessAnimatedStyle, sunAnimatedStyle, navigation]);
 
-  const { data: infiniteData, isLoading, fetchNextPage, refetch } = useInfiniteSwapiCharacters();
+  const {
+    data: infiniteData,
+    isLoading,
+    fetchNextPage,
+    refetch,
+    isRefetching,
+  } = useInfiniteSwapiCharacters();
   const data = infiniteData?.pages.map((page) => page.results.flat()).flat();
 
   if (isLoading) {
@@ -149,7 +155,7 @@ export default function HomeScreen() {
             tintColor={Colors.text}
           />
         }
-        refreshing={data && isLoading}
+        refreshing={isRefetching}
         onRefresh={() => {
           refetch();
         }}
